@@ -40,7 +40,7 @@ body:not(.play) #hud,body:not(.play) #joy,body:not(.play) #jump,body:not(.play) 
 .btn:disabled{opacity:.55;transform:none}
 .row{display:flex;gap:10px;justify-content:center}
 .scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 18px);box-sizing:border-box}
-body.home #home,body.shop #shop,body.friends #friends,body.chat #chat{display:flex}
+body.home #home,body.shop #shop,body.friends #friends,body.chat #chat,body.party #party{display:flex}
 .logo{font:400 clamp(46px,15vw,78px)/.92 "Lilita One","Arial Black",Impact,system-ui,sans-serif;margin:8px 0 12px;text-align:center;color:#ffd23f;-webkit-text-stroke:3px #1b1f3b;paint-order:stroke fill;text-shadow:0 6px 0 #1b1f3b,0 12px 20px rgba(0,0,0,.25)}
 .wal{background:var(--chip);color:#fff;padding:6px 14px;border-radius:999px;font-weight:700;font-size:16px}
 .homebtm{margin-top:auto;width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px;text-align:center}
@@ -97,15 +97,9 @@ body[data-g~=laser].play #xh{display:block}
 #voiceRoom{box-sizing:border-box;width:100%;padding:11px;border:2px solid #c9cce0;border-radius:12px;font:16px system-ui;user-select:text}
 .voicebuttons{display:flex;gap:7px;flex-wrap:wrap}.voicebuttons .btn{flex:1;min-width:100px}
 #remoteAudio{width:100%;height:28px;margin-top:4px}
-#videoCall{display:none;position:fixed;inset:0;z-index:9500;background:#000;flex-direction:column}
-#videoCall.on{display:flex}
-#remoteVideo{flex:1;min-height:0;width:100%;object-fit:cover;background:#111}
-#localVideo{position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);width:28vw;max-width:140px;aspect-ratio:3/4;object-fit:cover;border-radius:14px;border:2px solid #fff;background:#222;box-shadow:0 4px 14px #0007}
-#vcStatus{position:absolute;left:0;right:0;top:45%;text-align:center;color:#fff;font:700 20px system-ui,sans-serif;text-shadow:0 2px 6px #000;pointer-events:none}
-#vcTimer{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);display:none;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);color:#fff;font:700 13px system-ui,sans-serif;padding:5px 11px;border-radius:999px;pointer-events:none;z-index:2}
-#vcBar{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;gap:14px;justify-content:center}
-#vcBar button{width:58px;height:58px;border-radius:50%;border:0;background:rgba(255,255,255,.22);backdrop-filter:blur(6px);font-size:24px;color:#fff;cursor:pointer}
-#vcBar button#vcEnd{background:#e5484d}
+#videoCallStage{display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:8px}
+#videoCallStage video{width:100%;max-height:240px;aspect-ratio:4/3;object-fit:cover;background:#111;border-radius:12px}
+#videoCallStage .videolabel{font-size:11px;margin:2px 0;color:#667}
 
 /* Responsive layout for phones, tablets, and desktop computers */
 html,body{min-height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
@@ -161,7 +155,7 @@ button{touch-action:manipulation}
 </style>
 </head>
 <body class="home">
-<div id="videoCall"><video id="remoteVideo" autoplay playsinline></video><video id="localVideo" autoplay playsinline muted></video><div id="vcStatus">Calling…</div><div id="vcTimer">00:00</div><div id="vcBar"><button id="vcMute" title="Mute microphone">🎤</button><button id="vcCam" title="Camera on or off">📷</button><button id="vcFlip" title="Switch camera">🔄</button><button id="vcEnd" title="End call">✖</button></div></div><div id="incomingCall" style="display:none;position:fixed;inset:0;z-index:10000;background:#101426eF;align-items:center;justify-content:center;padding:20px"><div class="authbox"><h2 id="incomingTitle">📞 Incoming voice call</h2><p id="incomingCallText">A friend is calling…</p><div class="row"><button class="btn" id="acceptCallBtn">Accept</button><button class="btn alt" id="declineCallBtn">Decline</button></div></div></div><div id="auth"><div class="authbox">
+<div id="incomingCall" style="display:none;position:fixed;inset:0;z-index:10000;background:#101426eF;align-items:center;justify-content:center;padding:20px"><div class="authbox"><h2 id="incomingCallTitle">📞 Incoming call</h2><p id="incomingCallText">A friend is calling…</p><div class="row"><button class="btn" id="acceptCallBtn">Accept</button><button class="btn alt" id="declineCallBtn">Decline</button></div></div></div><div id="auth"><div class="authbox">
 <h1>BLOCKY OBBY</h1><h2 id="authtitle">Create your account</h2>
 <p id="authdesc">Make a local game account to start playing.</p>
 <input id="authuser" autocomplete="username" maxlength="20" placeholder="Choose a username">
@@ -177,10 +171,10 @@ button{touch-action:manipulation}
 <div id="joy"><div id="knob"></div></div><div id="joylabel">MOVE</div><div id="lookhint">SWIPE TO LOOK</div>
 <button id="run" aria-label="Hold to run">RUN</button><button id="jump">JUMP</button>
 <div id="card" class="hide"><div class="box"><h1 id="ct"></h1><p id="cpx"></p><div class="row"><button class="btn" id="go">Play again</button><button class="btn alt" id="goHome">Home</button></div></div></div>
-<div id="home" class="scr"><h1 class="logo">Blocky<br>Obby</h1><div class="wal" id="wal1"></div><div class="homebtm"><div id="gpick"></div><button class="btn" id="play">Play</button><button class="btn alt" id="shopBtn">Avatar shop</button><button class="btn alt" id="friendsBtn">👥 Friends</button><button class="btn alt" id="fullscreenBtn">⛶ Fullscreen</button><p class="hint">iPad & mobile: left joystick to move, drag the world to look, RUN to sprint, JUMP to jump. Computer: WASD or arrow keys to move, mouse-drag to look, Space to jump, Shift to sprint.</p></div></div>
+<div id="home" class="scr"><h1 class="logo">Blocky<br>Obby</h1><div class="wal" id="wal1"></div><div class="homebtm"><div id="gpick"></div><button class="btn" id="play">Play</button><button class="btn alt" id="shopBtn">Avatar shop</button><button class="btn alt" id="friendsBtn">👥 Friends</button><button class="btn alt" id="partyBtn">🎉 Party system</button><button class="btn alt" id="fullscreenBtn">⛶ Fullscreen</button><p class="hint">iPad & mobile: left joystick to move, drag the world to look, RUN to sprint, JUMP to jump. Computer: WASD or arrow keys to move, mouse-drag to look, Space to jump, Shift to sprint.</p></div></div>
 <div id="shop" class="scr"><div class="shoptop"><button class="btn sm" id="back">← Back</button><div class="wal" id="wal2"></div></div><div class="sheet"><div id="tabs"></div><div id="grid"></div><button class="btn" id="act"></button></div></div>
-<div id="friends" class="scr"><div class="shoptop"><button class="btn sm" id="friendsBack">← Back</button><div class="wal" id="friendUser"></div></div><div class="sheet"><h2 style="margin:3px 0">👥 Friends</h2><p style="font-size:12px;margin:0">Find an account on this device and send a friend request.</p><div style="display:flex;gap:6px;margin:8px 0"><input id="directChatUser" maxlength="20" placeholder="Message username directly" autocomplete="off" style="flex:1;min-width:0;padding:12px;border:2px solid #c9cce0;border-radius:12px;font:16px system-ui"><button class="btn sm" id="directChatBtn">💬 Message</button></div><input id="friendsearch" maxlength="20" placeholder="Enter exact username" autocomplete="off"><button class="btn" id="friendAdd">Add friend</button><div id="friendmsg"></div><h3 class="friendheading">Requests</h3><div id="friendRequests"></div><h3 class="friendheading">My friends</h3><div id="friendList"></div><div class="sheet" style="padding:10px;margin-top:12px"><h3 style="margin:0 0 6px">📞 Call a friend (voice or video)</h3><input id="callUsername" maxlength="20" placeholder="Friend’s exact username" autocomplete="off"><button class="btn" id="callUsernameBtn">📞 Voice call</button><button class="btn" id="callVideoBtn" style="margin-top:7px">🎥 Video call</button><button class="btn alt" id="demoCallBtn" style="display:none;margin-top:7px">🧪 Test call with demo voice</button><p id="callInfo" style="font-size:12px;margin:8px 0 0">Both players must have the game open, be logged in, and use an HTTPS-hosted copy. Calls cannot ring a closed game like a native phone app.</p></div><p style="font-size:11px;margin:6px 0 0">Friends and messages are saved locally on this device; you can still call by entering your friend’s username.</p></div></div>
-<div id="chat" class="scr"><div class="shoptop"><button class="btn sm" id="chatBack">← Friends</button><div class="wal" id="chatTitle">💬 Chat</div></div><div class="sheet"><div id="chatLog" aria-live="polite"></div><div id="chatComposer"><input id="chatInput" maxlength="300" placeholder="Message your friend…" autocomplete="off"><button class="btn sm" id="chatSend">Send</button></div><p id="chatStatus" style="font-size:11px;margin:5px 0;color:#667">Messages need both players online for live delivery.</p><h3 style="margin:8px 0 0">📞 Voice call</h3><div class="voicebuttons"><button class="btn" id="chatVideoBtn">🎥 Video call</button><button class="btn alt" id="voiceMuteBtn" disabled>Mute mic</button><button class="btn alt" id="voiceEndBtn" disabled>End call</button></div><audio id="remoteAudio" autoplay playsinline controls></audio><p id="voiceInfo">Tap Call on the Friends screen. Your friend must be logged in with the game open and accept the incoming call.</p></div></div>
+<div id="friends" class="scr"><div class="shoptop"><button class="btn sm" id="friendsBack">← Back</button><div class="wal" id="friendUser"></div></div><div class="sheet"><h2 style="margin:3px 0">👥 Friends</h2><p style="font-size:12px;margin:0">Find an account on this device and send a friend request.</p><div style="display:flex;gap:6px;margin:8px 0"><input id="directChatUser" maxlength="20" placeholder="Message username directly" autocomplete="off" style="flex:1;min-width:0;padding:12px;border:2px solid #c9cce0;border-radius:12px;font:16px system-ui"><button class="btn sm" id="directChatBtn">💬 Message</button></div><input id="friendsearch" maxlength="20" placeholder="Enter exact username" autocomplete="off"><button class="btn" id="friendAdd">Add friend</button><div id="friendmsg"></div><h3 class="friendheading">Requests</h3><div id="friendRequests"></div><h3 class="friendheading">My friends</h3><div id="friendList"></div><div class="sheet" style="padding:10px;margin-top:12px"><h3 style="margin:0 0 6px">📞 Call a friend</h3><input id="callUsername" maxlength="20" placeholder="Friend’s exact username" autocomplete="off"><div class="row"><button class="btn" id="callUsernameBtn">📞 Voice call</button><button class="btn" id="videoUsernameBtn">📹 Video call</button></div><button class="btn alt" id="demoCallBtn" style="display:none;margin-top:7px">🧪 Test call with demo voice</button><p id="callInfo" style="font-size:12px;margin:8px 0 0">Both players must have the game open, be logged in, and use an HTTPS-hosted copy. Calls cannot ring a closed game like a native phone app.</p></div><p style="font-size:11px;margin:6px 0 0">Friends and messages are saved locally on this device; you can still call by entering your friend’s username.</p></div></div>
+<div id="party" class="scr"><div class="shoptop"><button class="btn sm" id="partyBack">← Back</button><div class="wal">🎉 Party</div></div><div class="sheet"><h2 style="margin:3px 0">🎉 Party up</h2><p style="font-size:12px;margin:0">Join any online player by username — you do not need to be friends. The party host chooses a game and the player limit.</p><label for="partyGame">Game for the party</label><select id="partyGame"></select><div class="partyrow"><div><label for="partyLimit">Max players</label><select id="partyLimit"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option><option value="7">7 players</option><option value="8">8 players</option></select></div><div style="display:flex;align-items:end"><button class="btn" id="partyCreate" style="width:100%">Create party</button></div></div><hr style="width:100%;opacity:.25"><label for="partyHost">Join a party by host username</label><input id="partyHost" maxlength="20" placeholder="Enter host username" autocomplete="off"><button class="btn alt" id="partyJoin">Join party</button><div id="partyStatus">Connect to the calling service first; both players must be online.</div><h3 style="margin:3px 0">Current party</h3><div id="partyDetails" style="font-size:13px">You are not in a party.</div><div id="partyMembers"></div><div class="partyrow"><button class="btn alt" id="partyStart" disabled>▶ Start game</button><button class="btn alt" id="partyLeave" disabled>Leave party</button></div><p style="font-size:11px;margin:0">Party members can launch the same built-in Blocky Obby game together. This HTML cannot automatically join unrelated Roblox or external games. A global public party browser needs a shared server; this version connects directly by host username.</p></div></div><div id="chat" class="scr"><div class="shoptop"><button class="btn sm" id="chatBack">← Friends</button><div class="wal" id="chatTitle">💬 Chat</div></div><div class="sheet"><div id="chatLog" aria-live="polite"></div><div id="chatComposer"><input id="chatInput" maxlength="300" placeholder="Message your friend…" autocomplete="off"><button class="btn sm" id="chatSend">Send</button></div><p id="chatStatus" style="font-size:11px;margin:5px 0;color:#667">Messages need both players online for live delivery.</p><h3 style="margin:8px 0 0">📞 Calls</h3><div id="videoCallStage"><div><video id="localVideo" autoplay muted playsinline></video><p class="videolabel">You</p></div><div><video id="remoteVideo" autoplay playsinline></video><p class="videolabel">Friend</p></div></div><div class="voicebuttons"><button class="btn alt" id="voiceMuteBtn" disabled>Mute mic</button><button class="btn alt" id="voiceEndBtn" disabled>End call</button></div><audio id="remoteAudio" autoplay playsinline controls></audio><p id="voiceInfo">Tap Call on the Friends screen. Your friend must be logged in with the game open and accept the incoming call.</p></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -239,16 +233,10 @@ $('authsubmit').onclick=()=>{
  if(authMode==='create'){
   // Only reject a username that actually exists in the normalized account store.
   // Usernames are case-insensitive: Alex, alex and ALEX are the same account name.
-  const taken=Object.keys(all).find(existingKey=>existingKey.toLowerCase()===key || String(all[existingKey]?.username||'').trim().toLowerCase()===key);
-  // A name the host account made as a placeholder has no password yet, so the real
-  // player can still claim it and keep any friendship already attached to the name.
-  const claim=!!taken&&!String(all[taken].password||'');
-  if(taken&&!claim){authMessage('That username is already taken. Try a different name, or log in to that account.');return}
+  if(Object.keys(all).some(existingKey=>existingKey.toLowerCase()===key || String(all[existingKey]?.username||'').trim().toLowerCase()===key)){authMessage('That username is already taken. Try a different name, or log in to that account.');return}
   const usedIds=Object.values(all).map(a=>Number(a.playerId)||0);
-  const prev=claim?all[taken]:null;
-  const playerId=prev&&Number.isInteger(Number(prev.playerId))&&Number(prev.playerId)>0?Number(prev.playerId):Math.max(0,...usedIds)+1;
-  if(taken)delete all[taken];
-  all[key]={username,password,playerId,friends:prev&&Array.isArray(prev.friends)?prev.friends:[],requests:prev&&Array.isArray(prev.requests)?prev.requests:[],createdAt:prev?Number(prev.createdAt)||Date.now():Date.now()};
+  const playerId=Math.max(0,...usedIds)+1;
+  all[key]={username,password,playerId,friends:[],requests:[],createdAt:Date.now()};
   if(!saveAccounts(all)){authMessage('Could not save account. Check browser storage.');return}
  }else{
   if(!all[key]||all[key].password!==password){authMessage('Username or password is incorrect on this device.');return}
@@ -263,9 +251,6 @@ $('authsubmit').onclick=()=>{
  enterGame(all[key].username,key,all[key].playerId);
 };
 function getAccount(all,key){return all[key]&&typeof all[key]==='object'?all[key]:null}
-// The "youtube" account is the host account. It may add any username, a name that
-// has no account yet is created for them, and the friendship is accepted at once.
-function isHostAccount(){return String(currentAccountKey||'').trim().toLowerCase()==='youtube'}
 function friendMessage(t){$('friendmsg').textContent=t}
 function drawFriends(){
  const all=accounts(),me=getAccount(all,currentAccountKey);
@@ -276,36 +261,18 @@ function drawFriends(){
  const req=me.requests.filter(k=>getAccount(all,k));
  $('friendRequests').innerHTML=req.length?req.map(k=>'<div class="frienditem"><span>👤 '+all[k].username+'</span><div class="row"><button class="btn sm" data-request="accept" data-user="'+k+'">Accept</button><button class="btn alt sm" data-request="decline" data-user="'+k+'">Decline</button></div></div>').join(''):'<p style="font-size:13px">No new requests.</p>';
  const fs=me.friends.filter(k=>getAccount(all,k));
- $('friendList').innerHTML=fs.length?fs.map(k=>'<div class="frienditem"><span>👤 '+all[k].username+'</span><div class="row"><button class="btn sm" data-callname="'+safeText(all[k].username)+'">📞 Call</button><button class="btn sm" data-vcallname="'+safeText(all[k].username)+'" aria-label="Video call">🎥</button><button class="btn sm" data-chat="'+k+'">Chat</button><button class="btn alt sm" data-remove="'+k+'">Remove</button></div></div>').join(''):'<p style="font-size:13px">No friends added yet.</p>';
+ $('friendList').innerHTML=fs.length?fs.map(k=>'<div class="frienditem"><span>👤 '+all[k].username+'</span><div class="row"><button class="btn sm" data-callname="'+safeText(all[k].username)+'">📞 Call</button><button class="btn sm" data-chat="'+k+'">Chat</button><button class="btn alt sm" data-remove="'+k+'">Remove</button></div></div>').join(''):'<p style="font-size:13px">No friends added yet.</p>';
  saveAccounts(all);
 }
 $('friendAdd').onclick=()=>{
  const wanted=$('friendsearch').value.trim();
  if(!/^[a-zA-Z0-9_]{3,20}$/.test(wanted)){friendMessage('Enter a username with 3–20 letters, numbers or underscores.');return}
- const all=accounts(),targetKey=wanted.toLowerCase(),me=getAccount(all,currentAccountKey);
- let target=getAccount(all,targetKey),created=false;
+ const all=accounts(),targetKey=wanted.toLowerCase(),me=getAccount(all,currentAccountKey),target=getAccount(all,targetKey);
  if(!me){friendMessage('Please log in again.');return}
  if(targetKey===currentAccountKey){friendMessage('You cannot add yourself!');return}
- if(!target&&isHostAccount()){
-  // Host account: an unknown name gets an account made for it instead of an error.
-  const usedIds=Object.values(all).map(a=>Number(a.playerId)||0);
-  all[targetKey]={username:wanted,password:'',playerId:Math.max(0,...usedIds)+1,friends:[],requests:[],createdAt:Date.now()};
-  target=getAccount(all,targetKey);created=true;
- }
  if(!target){friendMessage('Username not found on this device.');return}
  me.friends=Array.isArray(me.friends)?me.friends:[];me.requests=Array.isArray(me.requests)?me.requests:[];
  target.friends=Array.isArray(target.friends)?target.friends:[];target.requests=Array.isArray(target.requests)?target.requests:[];
- if(isHostAccount()){
-  // Host account: nothing to wait for, whoever they pick is accepted immediately.
-  const already=me.friends.includes(targetKey)&&target.friends.includes(currentAccountKey);
-  if(!me.friends.includes(targetKey))me.friends.push(targetKey);
-  if(!target.friends.includes(currentAccountKey))target.friends.push(currentAccountKey);
-  me.requests=me.requests.filter(k=>k!==targetKey);
-  target.requests=target.requests.filter(k=>k!==currentAccountKey);
-  if(!saveAccounts(all)){friendMessage('Could not save the friend.');return}
-  friendMessage(already?target.username+' is already your friend.':(created?'Made an account for ':'Added ')+target.username+' — friendship accepted automatically.');
-  $('friendsearch').value='';drawFriends();return;
- }
  if(me.friends.includes(targetKey)){friendMessage('You are already friends with '+target.username+'.');return}
  if(me.requests.includes(targetKey)){friendMessage(target.username+' has already sent you a request. Check Requests above.');drawFriends();return}
  if(target.requests.includes(currentAccountKey)){friendMessage('You have already sent a request to '+target.username+'.');return}
@@ -362,13 +329,7 @@ function connectChat(username){
 }
 function chatStatus(message){const el=$('chatStatus');if(el)el.textContent=message}
 function receiveChatData(peerUsername,data){
- if(!data)return;
- // Call control messages share the chat data channel, so a friend who declines is reported as declining.
- if(data.kind==='blockyobby-call'){
-  if(String(data.action||'')==='decline'&&voiceCall){declinedByPeer=true;endVoice('Your friend declined the call.')}
-  return;
- }
- if(data.kind!=='blockyobby-chat-message'||typeof data.text!=='string')return;
+ if(!data||data.kind!=='blockyobby-chat-message'||typeof data.text!=='string')return;
  const id=String(data.id||'');if(id&&chatSeenIds.has(id))return;if(id)chatSeenIds.add(id);
  const from=String(data.from||peerUsername).toLowerCase();if(!/^[a-z0-9_]{3,20}$/.test(from))return;
  const chats=readChats(),key=pairKey(currentAccountKey,from),logs=Array.isArray(chats[key])?chats[key]:[];
@@ -407,145 +368,94 @@ $('directChatBtn').onclick=()=>{const username=$('directChatUser').value.trim();
 $('chatSend').onclick=sendChat;
 $('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat()}});
 $('chatBack').onclick=()=>{setMode('friends');drawFriends()};
-// Username-based voice AND video calls. Both players must be online in an HTTPS browser.
-// PeerJS provides signalling; this static HTML cannot ring a phone when the game is closed.
-let voicePeer=null,voiceCall=null,voiceStream=null,voiceMuted=false,pendingIncoming=null,voiceReady=false,camOn=true,camFacing='user',callIsVideo=false;
-let pendingCall=null,ringTimer=null,incomingTimer=null,callClock=null,callStartedAt=0,declinedByPeer=false;
+// Voice and video calls. Both players must be online on an HTTPS-hosted copy.
+let voicePeer=null,voiceCall=null,voiceStream=null,voiceMuted=false,pendingIncoming=null,voiceReady=false,activeCallVideo=false;
 const PEER_PREFIX='blockyobby-user-';
 function voiceStatus(message){$('voiceInfo').textContent=message;const ci=$('callInfo');if(ci)ci.textContent=message}
 function setVoiceButtons(active){$('voiceMuteBtn').disabled=!active;$('voiceEndBtn').disabled=!active}
 function peerIdFor(username){return PEER_PREFIX+String(username||'').trim().toLowerCase()}
-function usernameFromPeer(peer){const s=String(peer||'');return s.indexOf(PEER_PREFIX)===0?s.slice(PEER_PREFIX.length).toLowerCase():''}
-async function getMic(video){
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error((video?'Camera and microphone':'Microphone')+' access needs an HTTPS website. A local HTML file may not be allowed to use them.');
- return await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:video?{facingMode:{ideal:camFacing},width:{ideal:640},height:{ideal:480}}:false});
+async function getCallMedia(withVideo=false){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera/microphone access needs an HTTPS website. Open the hosted game in a browser and allow permissions.');return await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:withVideo?{facingMode:'user',width:{ideal:640},height:{ideal:480}}:false})}
+function showLocalVideo(){const stage=$('videoCallStage');stage.style.display=activeCallVideo?'grid':'none';$('localVideo').srcObject=activeCallVideo?voiceStream:null;if(!activeCallVideo)$('remoteVideo').srcObject=null}
+function endVoice(message='Call ended.'){if(typeof stopDemoCall==='function')stopDemoCall();if(voiceCall){const c=voiceCall;voiceCall=null;try{c.close()}catch(e){}}if(voiceStream){voiceStream.getTracks().forEach(t=>t.stop());voiceStream=null}voiceMuted=false;activeCallVideo=false;$('remoteAudio').srcObject=null;$('localVideo').srcObject=null;$('remoteVideo').srcObject=null;$('videoCallStage').style.display='none';$('voiceMuteBtn').textContent='Mute mic';setVoiceButtons(false);if(message)voiceStatus(message)}
+function attachCall(call){voiceCall=call;call.on('stream',stream=>{const audio=$('remoteAudio');audio.srcObject=stream;audio.play().catch(()=>{});if(activeCallVideo){$('remoteVideo').srcObject=stream;$('remoteVideo').play().catch(()=>{});voiceStatus('Video call connected. If the video is blank, check camera permissions.')}else voiceStatus('Voice call connected.')});call.on('close',()=>{if(voiceCall===call){voiceCall=null;endVoice('Your friend ended the call.')}});call.on('error',e=>voiceStatus('Call connection failed: '+(e.message||'network error')+'. Check both devices are online.'))}
+async function answerIncoming(){if(!pendingIncoming)return;const call=pendingIncoming;pendingIncoming=null;$('incomingCall').style.display='none';activeCallVideo=!!(call.metadata&&call.metadata.kind==='video');try{voiceStream=await getCallMedia(activeCallVideo);showLocalVideo();attachCall(call);call.answer(voiceStream);setVoiceButtons(true);voiceStatus(activeCallVideo?'Answering video call…':'Answering voice call…')}catch(e){try{call.close()}catch(_){}endVoice('Could not answer: '+e.message)}}
+function initVoice(){const me=accounts()[currentAccountKey];if(!me||!window.Peer){voiceStatus('Could not start calling. Check internet and reload the game.');return}if(voicePeer){try{voicePeer.destroy()}catch(e){}}voiceReady=false;voicePeer=new Peer(peerIdFor(me.username));voicePeer.on('open',()=>{voiceReady=true;voiceStatus('Ready to receive calls as '+me.username+'. Keep the game open.');if(activeChatKey)connectChat(activeChatKey);});voicePeer.on('call',call=>{if(voiceCall||pendingIncoming){call.close();return}pendingIncoming=call;const caller=String(call.peer||'').startsWith(PEER_PREFIX)?String(call.peer).slice(PEER_PREFIX.length):'A player';const isVideo=!!(call.metadata&&call.metadata.kind==='video');$('incomingCallTitle').textContent=isVideo?'📹 Incoming video call':'📞 Incoming voice call';$('incomingCallText').textContent=caller+' is calling you.';$('incomingCall').style.display='flex';});voicePeer.on('connection',conn=>{const peerName=String(conn.peer||'').startsWith(PEER_PREFIX)?String(conn.peer).slice(PEER_PREFIX.length).toLowerCase():'';if(!peerName)return;conn.on('data',data=>{if(data&&String(data.kind||'').startsWith('blockyobby-party-')){receivePartyPacket(peerName,conn,data);return}receiveChatData(peerName,data)});conn.on('close',()=>{if(chatConnections[peerName]===conn)delete chatConnections[peerName];if(partyConnections[peerName]===conn){delete partyConnections[peerName];if(partyState&&partyIsHost&&partyState.members[peerName]){delete partyState.members[peerName];partyBroadcast(partySnapshot());renderParty()}}});conn.on('error',()=>{if(chatConnections[peerName]===conn)delete chatConnections[peerName];if(partyConnections[peerName]===conn)delete partyConnections[peerName]});if(conn.metadata&&conn.metadata.kind==='blockyobby-party'){partyConnections[peerName]=conn;conn.on('open',()=>{partyConnections[peerName]=conn})}else{chatConnections[peerName]=conn;conn.on('open',()=>{chatConnections[peerName]=conn})}});voicePeer.on('error',e=>{voiceReady=false;let msg=e.type==='unavailable-id'?'This username is already online in another game tab/device. Close the other session and reload.':'Calling service error: '+(e.message||e.type||'connection problem')+'. Check internet and reload.';voiceStatus(msg)});}
+async function callUsername(username,withVideo=false){username=String(username||'').trim();if(!/^[a-zA-Z0-9_]{3,20}$/.test(username)){voiceStatus('Enter your friend’s exact username (3–20 letters, numbers or underscores).');return}if(username.toLowerCase()===String(accounts()[currentAccountKey]?.username||'').toLowerCase()){voiceStatus('You cannot call yourself.');return}if(!window.Peer){voiceStatus('Calling service did not load. Check internet and reload.');return}if(!voicePeer||!voiceReady){voiceStatus('Connecting to the calling service… Wait a moment, then tap call again.');if(!voicePeer)initVoice();return}endVoice('Calling '+username+'…');try{activeCallVideo=!!withVideo;voiceStream=await getCallMedia(activeCallVideo);showLocalVideo();const call=voicePeer.call(peerIdFor(username),voiceStream,{metadata:{kind:activeCallVideo?'video':'voice'}});if(!call){endVoice('Could not start call. Make sure your friend is online in the game.');return}attachCall(call);setVoiceButtons(true);voiceStatus((activeCallVideo?'Video':'Voice')+' calling '+username+'… Their game must be open to receive it.')}catch(e){endVoice('Could not start camera/microphone: '+e.message)}}
+// Direct-connect party system. It uses the existing PeerJS connection service and works across devices.
+const partyConnections=Object.create(null);
+let partyState=null,partyIsHost=false,partyRemoteAvatars=Object.create(null),partyLastSend=0;
+function partyStatus(t){const el=$('partyStatus');if(el)el.textContent=t}
+function partyGameOptions(){const sel=$('partyGame');if(!sel)return;sel.innerHTML=Object.keys(GAMES).map(id=>'<option value="'+safeText(id)+'">'+safeText(GAMES[id].name||id)+'</option>').join('');sel.value=GAMES[cur]?cur:'obby'}
+function partyPacket(peer,packet){const c=partyConnections[peer];if(c&&c.open){try{c.send(packet);return true}catch(e){}}return false}
+function partyBroadcast(packet,except=''){Object.keys(partyConnections).forEach(k=>{if(k!==except)partyPacket(k,packet)})}
+function partyHostName(){return String(partyState&&partyState.host||'').toLowerCase()}
+function partyMemberNames(){return partyState?Object.keys(partyState.members||{}):[]}
+function renderParty(){
+ const d=$('partyDetails'),m=$('partyMembers'),start=$('partyStart'),leave=$('partyLeave');if(!d||!m)return;
+ if(!partyState){d.textContent='You are not in a party.';m.innerHTML='';start.disabled=true;leave.disabled=true;return}
+ const game=GAMES[partyState.game]||GAMES.obby,host=partyState.host||currentAccountKey,limit=Math.max(2,Math.min(8,Number(partyState.limit)||4));
+ d.textContent='Host: '+host+' · Game: '+game.name+' · Players: '+(1+partyMemberNames().length)+'/'+limit+' · '+(partyIsHost?'You are host':'Joined party');
+ const names=[host,...partyMemberNames()];m.innerHTML=names.map((name,i)=>'<div class="party-member">'+(i===0?'👑 ':'👤 ')+safeText(name)+(i===0?' (host)':'')+'</div>').join('');
+ start.disabled=!partyIsHost;leave.disabled=false;$('partyGame').value=partyState.game;$('partyLimit').value=String(limit);
 }
-// Live call duration, shown as a small pill on the video screen.
-function startCallClock(){
- stopCallClock();callStartedAt=Date.now();
- const t=$('vcTimer');if(t){t.style.display='block';t.textContent='00:00'}
- callClock=setInterval(()=>{const sec=Math.floor((Date.now()-callStartedAt)/1000),el=$('vcTimer');
-  if(el)el.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')},1000);
+function partySnapshot(){return {kind:'blockyobby-party-state',host:partyState.host,game:partyState.game,limit:partyState.limit,members:partyMemberNames(),started:!!partyState.started}}
+function partySendState(peer){partyPacket(peer,partySnapshot())}
+function partyCreate(){
+ if(!currentAccountKey){partyStatus('Log in first.');return}if(!voicePeer||!voiceReady){partyStatus('Connecting… wait a moment, then create the party again.');if(!voicePeer)initVoice();return}
+ Object.keys(partyConnections).forEach(k=>{try{partyConnections[k].close()}catch(e){}delete partyConnections[k]});
+ partyIsHost=true;partyState={host:currentAccountKey,game:$('partyGame').value||'obby',limit:Math.max(2,Math.min(8,Number($('partyLimit').value)||4)),members:{},started:false};
+ partyStatus('Party created! Tell players your username: '+(accounts()[currentAccountKey]?.username||currentAccountKey)+'. They can join even if they are not your friends.');renderParty();
 }
-function stopCallClock(){if(callClock){clearInterval(callClock);callClock=null}callStartedAt=0;const t=$('vcTimer');if(t){t.style.display='none';t.textContent='00:00'}}
-function clearRing(){if(ringTimer){clearTimeout(ringTimer);ringTimer=null}}
-function clearIncomingTimer(){if(incomingTimer){clearTimeout(incomingTimer);incomingTimer=null}}
-// Control messages (e.g. a declined call) travel over the same data channel as chat.
-function callSignal(target,action){try{const c=chatConnections[String(target||'').toLowerCase()];if(c&&c.open)c.send({kind:'blockyobby-call',action,from:currentAccountKey,time:Date.now()})}catch(e){}}
-function endVoice(message='Call ended.'){
- if(typeof stopDemoCall==='function')stopDemoCall();
- clearRing();clearIncomingTimer();pendingCall=null;
- if(voiceCall){const c=voiceCall;voiceCall=null;try{c.close()}catch(e){}}
- if(voiceStream){voiceStream.getTracks().forEach(t=>t.stop());voiceStream=null}
- voiceMuted=false;camOn=true;$('remoteAudio').srcObject=null;hideVideo();stopCallClock();
- $('voiceMuteBtn').textContent='Mute mic';setVoiceButtons(false);
- declinedByPeer=false;
- if(message)voiceStatus(message);
+function partyJoin(){
+ const host=String($('partyHost').value||'').trim().toLowerCase();if(!/^[a-zA-Z0-9_]{3,20}$/.test(host)){partyStatus('Enter the host’s username (3–20 letters, numbers or underscores).');return}
+ if(host===String(currentAccountKey||'').toLowerCase()){partyStatus('You cannot join your own party. Create it instead.');return}
+ if(!voicePeer||!voiceReady){partyStatus('Connecting… wait a moment, then join again.');if(!voicePeer)initVoice();return}
+ leaveParty(false);partyStatus('Contacting '+host+'…');
+ try{const conn=voicePeer.connect(peerIdFor(host),{reliable:true,metadata:{kind:'blockyobby-party'}});partyConnections[host]=conn;
+ conn.on('open',()=>{partyConnections[host]=conn;conn.send({kind:'blockyobby-party-join',username:currentAccountKey});partyStatus('Request sent to '+host+'; waiting for the party to accept.');});
+ conn.on('data',data=>receivePartyPacket(host,conn,data));conn.on('close',()=>{if(partyConnections[host]===conn)delete partyConnections[host];if(partyState&&!partyIsHost&&partyHostName()===host){partyState=null;partyIsHost=false;renderParty();partyStatus('The host disconnected.')} });conn.on('error',()=>partyStatus('Could not connect. Check the username and make sure the host is online.'));
+ }catch(e){partyStatus('Could not connect: '+(e.message||'network error'))}
 }
-function attachCall(call){
- voiceCall=call;
- call.on('stream',stream=>{
-  clearRing();
-  if(stream.getVideoTracks().length){showVideo(stream);startCallClock();voiceStatus('Connected.');return}
-  // A video call where the friend answered with audio only still needs their voice in the overlay.
-  if(callIsVideo){
-   const st=$('vcStatus');if(st){st.textContent='Your friend joined without a camera';st.style.display='block'}
-   const rv=$('remoteVideo');rv.srcObject=stream;rv.play().catch(()=>{});$('videoCall').classList.add('on');
-   startCallClock();voiceStatus('Connected. Your friend has no camera on.');return;
-  }
-  const audio=$('remoteAudio');audio.srcObject=stream;
-  audio.play().then(()=>{startCallClock();voiceStatus('Connected.')}).catch(()=>{startCallClock();voiceStatus('Connected. Tap the audio player if you cannot hear your friend.')});
- });
- call.on('close',()=>{if(voiceCall===call){voiceCall=null;endVoice(declinedByPeer?'Your friend declined the call.':'Your friend ended the call.')}});
- call.on('error',e=>voiceStatus('Call connection failed: '+(e.message||'network error')+'. Check both devices are online.'));
-}
-async function answerIncoming(){
- if(!pendingIncoming)return;
- const call=pendingIncoming;pendingIncoming=null;clearIncomingTimer();$('incomingCall').style.display='none';
- declinedByPeer=false;clearRing();
- try{
-  const wantVideo=!!(call.metadata&&call.metadata.video);
-  let st;
-  try{st=await getMic(wantVideo)}catch(e){if(!wantVideo)throw e;st=await getMic(false);voiceStatus('Camera unavailable, answering with audio only.')}
-  voiceStream=st;callIsVideo=wantVideo&&st.getVideoTracks().length>0;
-  if(wantVideo)openVideoUI(st,'Connecting…');
-  attachCall(call);call.answer(voiceStream);setVoiceButtons(true);
-  voiceStatus('Connecting…');
- }catch(e){try{call.close()}catch(_){}voiceStatus('Could not answer: '+e.message)}
-}
-function initVoice(){
- const me=accounts()[currentAccountKey];
- if(!me||!window.Peer){voiceStatus('Could not start calling. Check internet and reload the game.');return}
- if(voicePeer){try{voicePeer.destroy()}catch(e){}}
- voiceReady=false;
- voicePeer=new Peer(peerIdFor(me.username));
- voicePeer.on('open',()=>{
-  voiceReady=true;
-  voiceStatus('Ready to receive calls as '+me.username+'. Keep the game open.');
-  if(activeChatKey)connectChat(activeChatKey);
-  // A call tapped before the calling service finished connecting is placed now.
-  if(pendingCall){const q=pendingCall;pendingCall=null;startCall(q.username,q.video)}
- });
- voicePeer.on('disconnected',()=>{voiceReady=false;try{voicePeer.reconnect()}catch(e){}});
- voicePeer.on('call',call=>{
-  if(voiceCall||pendingIncoming){try{call.close()}catch(e){}return}
-  pendingIncoming=call;
-  const caller=usernameFromPeer(call.peer)||'A player';
-  const iv=!!(call.metadata&&call.metadata.video);
-  $('incomingTitle').textContent=iv?'🎥 Incoming video call':'📞 Incoming voice call';
-  $('incomingCallText').textContent=caller+(iv?' is video calling you.':' is calling you.');
-  $('incomingCall').style.display='flex';
-  clearIncomingTimer();
-  // Stop the banner ringing forever if nobody answers.
-  incomingTimer=setTimeout(()=>{
-   if(pendingIncoming===call){try{call.close()}catch(e){}pendingIncoming=null;$('incomingCall').style.display='none';voiceStatus('Missed call from '+caller+'.')}
-  },45000);
- });
- voicePeer.on('connection',conn=>{
-  const peerName=usernameFromPeer(conn.peer);if(!peerName)return;
-  chatConnections[peerName]=conn;
-  conn.on('data',data=>receiveChatData(peerName,data));
-  conn.on('close',()=>{if(chatConnections[peerName]===conn)delete chatConnections[peerName]});
-  conn.on('error',()=>{if(chatConnections[peerName]===conn)delete chatConnections[peerName]});
- });
- voicePeer.on('error',e=>{
-  voiceReady=false;
-  const msg=e.type==='unavailable-id'?'This username is already online in another game tab/device. Close the other session and reload.':'Calling service error: '+(e.message||e.type||'connection problem')+'. Check internet and reload.';
-  voiceStatus(msg);
- });
-}
-async function startCall(username,video){
- declinedByPeer=false;
- endVoice('Calling '+username+'…');
- try{
-  voiceStream=await getMic(!!video);
-  callIsVideo=!!video;
-  if(video)openVideoUI(voiceStream,'Calling '+username+'…');
-  // Open the data channel too, so a decline (or a chat message) can reach this side.
-  connectChat(username);
-  const call=voicePeer.call(peerIdFor(username),voiceStream,{metadata:{video:!!video}});
-  if(!call){endVoice('Could not start the call. Make sure your friend is online in the game.');return}
-  attachCall(call);setVoiceButtons(true);
-  voiceStatus('Calling '+username+'… their game must be open to receive it.');
-  clearRing();
-  ringTimer=setTimeout(()=>{
-   if(voiceCall&&!callStartedAt)endVoice('No answer from '+username+'. They may have the game closed or missed the call.');
-  },45000);
- }catch(e){endVoice('Could not start '+(video?'camera or microphone':'microphone')+': '+e.message)}
-}
-async function callUsername(username,video){
- username=String(username||'').trim();
- if(!/^[a-zA-Z0-9_]{3,20}$/.test(username)){voiceStatus('Enter your friend’s exact username (3–20 letters, numbers or underscores).');return}
- if(username.toLowerCase()===String(accounts()[currentAccountKey]?.username||'').toLowerCase()){voiceStatus('You cannot call yourself.');return}
- if(!window.Peer){voiceStatus('Calling service did not load. Check internet and reload.');return}
- if(!voicePeer||!voiceReady){
-  pendingCall={username,video:!!video};
-  voiceStatus('Connecting to the calling service… '+username+' will be called automatically in a moment.');
-  if(!voicePeer)initVoice();else{try{voicePeer.reconnect()}catch(e){}}
+function receivePartyPacket(peer,conn,data){
+ if(!data||typeof data.kind!=='string'||!data.kind.startsWith('blockyobby-party-'))return;
+ if(data.kind==='blockyobby-party-join'){
+  if(!partyState||!partyIsHost){conn.send({kind:'blockyobby-party-reject',reason:'That player is not hosting a party.'});return}
+  const name=String(data.username||peer).toLowerCase();if(!/^[a-z0-9_]{3,20}$/.test(name)||name===partyState.host){conn.send({kind:'blockyobby-party-reject',reason:'Invalid player.'});return}
+  if(!partyState.members[name]&&1+partyMemberNames().length>=partyState.limit){conn.send({kind:'blockyobby-party-reject',reason:'Party is full.'});return}
+  partyState.members[name]=true;partyConnections[name]=conn;conn.send({kind:'blockyobby-party-accepted',host:partyState.host});partyBroadcast(partySnapshot(),name);partySendState(name);partyStatus(name+' joined your party.');renderParty();return;
+ }
+ if(data.kind==='blockyobby-party-reject'){partyStatus(data.reason||'Party join was rejected.');try{conn.close()}catch(e){}delete partyConnections[peer];return}
+ if(data.kind==='blockyobby-party-accepted'){partyIsHost=false;partyState={host:String(data.host||peer).toLowerCase(),game:'obby',limit:4,members:{[currentAccountKey]:true},started:false};partyStatus('Joined the party!');renderParty();return}
+ if(data.kind==='blockyobby-party-state'){
+  if(!partyIsHost){partyState={host:String(data.host||peer).toLowerCase(),game:GAMES[data.game]?data.game:'obby',limit:Math.max(2,Math.min(8,Number(data.limit)||4)),members:{},started:!!data.started};(Array.isArray(data.members)?data.members:[]).forEach(n=>{const k=String(n).toLowerCase();if(k!==currentAccountKey)partyState.members[k]=true});if(data.started&&GAMES[partyState.game]&&(mode!=='play'||cur!==partyState.game)){cur=partyState.game;setMode('play');partyStatus('The host started '+GAMES[cur].name+'.')}renderParty();}
   return;
  }
- startCall(username,!!video);
+ if(data.kind==='blockyobby-party-game'){
+  if(!partyIsHost&&GAMES[data.game]){partyState.game=data.game;partyState.started=false;$('partyGame').value=data.game;partyStatus('Host selected '+GAMES[data.game].name+'.');renderParty()}return;
+ }
+ if(data.kind==='blockyobby-party-start'){
+  if(!partyIsHost&&GAMES[data.game]){partyState.game=data.game;partyState.started=true;cur=data.game;setMode('play');partyStatus('Party started '+GAMES[cur].name+'.');renderParty()}return;
+ }
+ if(data.kind==='blockyobby-party-leave'){
+  if(partyIsHost){delete partyState.members[peer];delete partyConnections[peer];partyBroadcast(partySnapshot());renderParty();partyStatus(peer+' left the party.')}else if(partyState&&partyHostName()===peer){partyState=null;partyIsHost=false;renderParty();partyStatus('You left the party.')}return;
+ }
+ if(data.kind==='blockyobby-party-player'){
+  const source=partyIsHost?peer:String(data.username||peer).toLowerCase();
+  if(partyIsHost){data.username=peer;partyBroadcast(data,peer)}
+  if(source!==currentAccountKey&&!partyRemoteAvatars[source]){const avatar=av.clone(true);avatar.traverse(o=>{if(o.isMesh){o.material=o.material&&o.material.clone?o.material.clone():o.material}});scene.add(avatar);partyRemoteAvatars[source]=avatar}
+  const a=partyRemoteAvatars[source];if(a&&data.pos){a.position.set(Number(data.pos.x)||0,Number(data.pos.y)||0,Number(data.pos.z)||0);a.rotation.y=Number(data.yaw)||0;a.visible=mode==='play'&&(!partyState||!data.game||data.game===cur)}return;
+ }
 }
+function leaveParty(send=true){
+ if(send&&partyState){if(partyIsHost){partyBroadcast({kind:'blockyobby-party-reject',reason:'The host ended the party.'})}else partyPacket(partyHostName(),{kind:'blockyobby-party-leave',username:currentAccountKey})}
+ Object.keys(partyConnections).forEach(k=>{try{partyConnections[k].close()}catch(e){}delete partyConnections[k]});Object.keys(partyRemoteAvatars).forEach(k=>{scene.remove(partyRemoteAvatars[k]);delete partyRemoteAvatars[k]});partyState=null;partyIsHost=false;renderParty();partyStatus('You are not in a party.');
+}
+function partyStart(){if(!partyState||!partyIsHost)return;const game=GAMES[$('partyGame').value]? $('partyGame').value:'obby';partyState.game=game;partyState.started=true;partyBroadcast({kind:'blockyobby-party-start',game});partyBroadcast(partySnapshot());cur=game;setMode('play');partyStatus('Party started '+GAMES[game].name+'.');renderParty()}
+function partySelectGame(){if(!partyState||!partyIsHost)return;const game=GAMES[$('partyGame').value]?$('partyGame').value:'obby';partyState.game=game;partyBroadcast({kind:'blockyobby-party-game',game});partyBroadcast(partySnapshot());renderParty()}
+$('partyBtn').onclick=()=>{partyGameOptions();setMode('party');renderParty();partyStatus(voiceReady?'Ready. Create a party or enter a host username.':'Connecting to party service…')};
+$('partyBack').onclick=()=>setMode('home');$('partyCreate').onclick=partyCreate;$('partyJoin').onclick=partyJoin;$('partyStart').onclick=partyStart;$('partyLeave').onclick=()=>leaveParty();$('partyGame').addEventListener('change',partySelectGame);
+$('partyHost').addEventListener('keydown',e=>{if(e.key==='Enter')partyJoin()});
+
 // Local test call for Player ID 5. This plays a clearly labelled computer-generated voice;
 // it does not connect to a real person or pretend that another player answered.
 let demoCallActive=false;
@@ -579,68 +489,21 @@ function startDemoCall(){
  speakNext();
 }
 $('demoCallBtn').onclick=()=>{if(demoCallActive){stopDemoCall();voiceStatus('Demo call ended.');}else startDemoCall();};
-$('callUsernameBtn').onclick=()=>callUsername($('callUsername').value);
+$('callUsernameBtn').onclick=()=>callUsername($('callUsername').value,false);
+$('videoUsernameBtn').onclick=()=>callUsername($('callUsername').value,true);
 $('callUsername').addEventListener('keydown',e=>{if(e.key==='Enter')callUsername($('callUsername').value)});
 $('friendList').addEventListener('click',e=>{const b=e.target.closest('button[data-callname]');if(b){$('callUsername').value=b.dataset.callname;callUsername(b.dataset.callname)}});
 $('acceptCallBtn').onclick=answerIncoming;
-$('declineCallBtn').onclick=()=>{
- if(pendingIncoming){
-  const peerName=usernameFromPeer(pendingIncoming.peer);
-  if(peerName)callSignal(peerName,'decline');
-  try{pendingIncoming.close()}catch(e){}
-  pendingIncoming=null;
- }
- clearIncomingTimer();$('incomingCall').style.display='none';voiceStatus('Incoming call declined.');
-};
+$('declineCallBtn').onclick=()=>{if(pendingIncoming){try{pendingIncoming.close()}catch(e){}pendingIncoming=null}$('incomingCall').style.display='none';voiceStatus('Incoming call declined.')};
 $('voiceMuteBtn').onclick=()=>{if(!voiceStream)return;voiceMuted=!voiceMuted;voiceStream.getAudioTracks().forEach(t=>t.enabled=!voiceMuted);$('voiceMuteBtn').textContent=voiceMuted?'Unmute mic':'Mute mic';voiceStatus(voiceMuted?'Microphone muted.':'Microphone is on.')};
 $('voiceEndBtn').onclick=()=>endVoice();
-// ---- Video call UI ----
-function setMirror(){$('localVideo').style.transform=camFacing==='user'?'scaleX(-1)':'none'}
-function openVideoUI(local,label){
- camOn=true;$('vcCam').textContent='📷';$('vcMute').textContent=voiceMuted?'🔇':'🎤';
- const lv=$('localVideo');lv.srcObject=local||null;
- lv.style.display=local&&local.getVideoTracks&&local.getVideoTracks().length?'block':'none';
- setMirror();
- const st=$('vcStatus');st.textContent=label||'Calling…';st.style.display='block';
- $('videoCall').classList.add('on');
-}
-function showVideo(stream){const rv=$('remoteVideo');rv.srcObject=stream;rv.play().catch(()=>{const st=$('vcStatus');st.textContent='Tap the screen to start the video';st.style.display='block'});$('vcStatus').style.display='none';$('videoCall').classList.add('on')}
-function hideVideo(){$('videoCall').classList.remove('on');$('remoteVideo').srcObject=null;$('localVideo').srcObject=null;callIsVideo=false;camOn=true;$('vcCam').textContent='📷';$('vcMute').textContent='🎤';const st=$('vcStatus');st.style.display='block';st.textContent='Calling…'}
-$('remoteVideo').addEventListener('click',()=>{const rv=$('remoteVideo');if(rv.paused)rv.play().catch(()=>{});$('vcStatus').style.display='none'});
-async function flipCam(){
- if(!voiceStream||!voiceStream.getVideoTracks().length){voiceStatus('No camera to switch.');return}
- const next=camFacing==='user'?'environment':'user';
- try{
-  const ns=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:next}},audio:false});
-  const nt=ns.getVideoTracks()[0],old=voiceStream.getVideoTracks()[0];
-  const pc=voiceCall&&(voiceCall.peerConnection||voiceCall._pc),sender=pc&&pc.getSenders().find(s=>s.track&&s.track.kind==='video');
-  if(sender)await sender.replaceTrack(nt);
-  if(old){voiceStream.removeTrack(old);old.stop()}
-  voiceStream.addTrack(nt);nt.enabled=camOn;camFacing=next;
-  const lv=$('localVideo');lv.srcObject=null;lv.srcObject=voiceStream;setMirror();
-  voiceStatus('Switched to the '+(next==='user'?'front':'back')+' camera.');
- }catch(e){voiceStatus('Could not switch camera: '+e.message)}
-}
-$('vcMute').onclick=()=>{if(!voiceStream)return;voiceMuted=!voiceMuted;voiceStream.getAudioTracks().forEach(t=>t.enabled=!voiceMuted);$('vcMute').textContent=voiceMuted?'🔇':'🎤';$('voiceMuteBtn').textContent=voiceMuted?'Unmute mic':'Mute mic'};
-$('vcCam').onclick=()=>{if(!voiceStream)return;camOn=!camOn;voiceStream.getVideoTracks().forEach(t=>t.enabled=camOn);$('vcCam').textContent=camOn?'📷':'🚫'};
-$('vcFlip').onclick=flipCam;
-$('vcEnd').onclick=()=>endVoice();
-$('callVideoBtn').onclick=()=>callUsername($('callUsername').value,true);
-$('chatVideoBtn').onclick=()=>{const a=accounts()[activeChatKey];if(!a){voiceStatus('Open a chat with a friend first.');return}callUsername(a.username,true)};
-$('friendList').addEventListener('click',e=>{const b=e.target.closest('button[data-vcallname]');if(b){$('callUsername').value=b.dataset.vcallname;callUsername(b.dataset.vcallname,true)}});
-window.addEventListener('beforeunload',()=>{if(voicePeer)voicePeer.destroy();if(voiceStream)voiceStream.getTracks().forEach(t=>t.stop())});
-$('friendsBtn').onclick=()=>{setMode('friends');drawFriends();friendMessage(isHostAccount()?'Host account: type any username and the friendship is accepted automatically.':'')};
+window.addEventListener('beforeunload',()=>{if(partyState&&!partyIsHost)partyPacket(partyHostName(),{kind:'blockyobby-party-leave',username:currentAccountKey});if(voicePeer)voicePeer.destroy();if(voiceStream)voiceStream.getTracks().forEach(t=>t.stop())});
+$('friendsBtn').onclick=()=>{setMode('friends');drawFriends();friendMessage('')};
 $('friendsBack').onclick=()=>setMode('home');
 $('fullscreenBtn').onclick=async()=>{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen?.()}else{await document.exitFullscreen?.()}}catch(e){$('authmsg').textContent='Fullscreen is not supported in this browser. You can still play normally.'}};
 
 
 if('ontouchstart' in window||navigator.maxTouchPoints>0)document.documentElement.classList.add('touch');
-// If a CDN script (three.js) is blocked, say so instead of leaving dead buttons.
-if(typeof THREE==='undefined'){
- const b=document.querySelector('#auth .authbox');
- if(b)b.innerHTML='<h1>BLOCKY OBBY</h1><p>The 3D engine did not load, so the game cannot start. Check your internet connection or an ad blocker, then reload this page.</p>';
- throw new Error('three.js did not load');
-}
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x8fd0ff);scene.fog=new THREE.Fog(0x8fd0ff,140,420);
 const cam=new THREE.PerspectiveCamera(65,1,.1,400);
 const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -1149,6 +1012,7 @@ function loop(now){
   if(running)step(dt,now/1000);
   carVis();const sp=Math.hypot(vx,vz);
   av.position.set(p.x,p.y,p.z);
+  if(partyState&&mode==='play'&&now-partyLastSend>120){partyLastSend=now;const packet={kind:'blockyobby-party-player',username:currentAccountKey,pos:{x:av.position.x,y:av.position.y,z:av.position.z},yaw:av.rotation.y,game:cur};if(partyIsHost)partyBroadcast(packet);else partyPacket(partyHostName(),packet)}
   if(sp>.5){let d=Math.atan2(vx,vz)-av.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));av.rotation.y+=d*Math.min(1,14*dt)}
   phase+=sp*dt*1.1;const sw=Math.sin(phase)*.9*Math.min(1,sp/SPEED);
   if(grounded){legL.rotation.x=sw;legR.rotation.x=-sw;armL.rotation.x=-sw;armR.rotation.x=sw}
@@ -1165,7 +1029,7 @@ function loop(now){
   cam.lookAt(p.x,ty,p.z);
   R.render(scene,cam);
 }
-setMode('home');requestAnimationFrame(loop);
+partyGameOptions();setMode('home');requestAnimationFrame(loop);
 </script>
 </body>
 </html>
